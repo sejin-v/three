@@ -37,7 +37,6 @@ jobs:
           node-version: 20
           # cache: 'npm'
 
-      - run: pnpm ci --legacy-peer-deps
       - run: pnpm run build
         env:
           CI: false
