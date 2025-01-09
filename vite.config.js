@@ -8,7 +8,7 @@ import VueRouter from 'unplugin-vue-router/vite';
 import Inspect from 'vite-plugin-inspect';
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: 'vue_jj',
+  base: '/vue_jj',
   plugins: [
     vue(),
     Layouts({
