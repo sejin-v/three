@@ -19,7 +19,7 @@ const getMenus = async () => {
     category: 'CATEGORY',
     menu: 'CATEGORY#'
   }
-  const apiUrl = `https://u0ku04bdx9.execute-api.ap-northeast-2.amazonaws.com/members`;
+  const apiUrl = `https://mqhgbjr5z8.execute-api.ap-northeast-2.amazonaws.com/intl`;
   try {
     const response = await request.get(apiUrl, { params })
     console.log(response);

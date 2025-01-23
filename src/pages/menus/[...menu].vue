@@ -1,16 +1,16 @@
 <script setup lang="ts">
+import Menus from "~/components/Menus.vue";
 import { menus } from "./menu";
 import { useMenuStore } from '~/stores/menu';
 const menuStore = useMenuStore()
 
 const route = useRoute()
 const router = useRouter()
-console.log(menuStore);
 
 const menu = menus[(route.params as { menu: string }).menu]
 const parentMenu = menuStore.parentMenu
-console.log(menu);
-const currentMenu = ref(menu.menus[0].children)
+const currentMenuList = ref(menu.menus[0].children)
+const currentMenu = ref()
 const currentMenuName = ref(menu.menus[0].name)
 
 const getMenuDetail = async () => {
@@ -28,7 +28,7 @@ const getMenuDetail = async () => {
   }
 }
 const handleClickMenu = (target: any) => {
-  currentMenu.value = target.children
+  currentMenuList.value = target.children
   currentMenuName.value = target.name
 }
 const handleBackMenu = () => {
@@ -37,37 +37,64 @@ const handleBackMenu = () => {
   router.push('/menus')
 }
 // getMenuDetail()
+
+const handleClickMenuRecipe = (menu: {
+  name: string
+  item: string
+  description: string
+}) => {
+  currentMenu.value = menu
+}
+
+const closeMenuPopup = () => {
+  currentMenu.value = {
+    name: '',
+    item: '',
+    description: ''
+  }
+}
 </script>
 
 <template>
   <button class="sticky z-20" @click="handleBackMenu"> <- </button>
-      <div class="w-[355px] bg-white shadow-lg rounded-lg overflow-hidden">
+      <div class="w-[355px] bg-white rounded-lg overflow-hidden">
         <img :src="parentMenu.imageUrl" alt="Background" class="w-full h-[200px] object-cover" />
 
-        <div class="absolute top-0 left-0 w-full h-[200px] bg-gradient-to-b from-black/70 to-transparent"> </div>
+        <div class="absolute top-0 left-0 w-full h-[200px] bg-gradient-to-b from-black/70 to-transparent"></div>
+
         <div class="absolute top-0 left-0 p-4 z-10 w-full flex flex-col gap-2 items-center text-center">
           <h1 class="text-2xl font-title text-gray-200">{{ parentMenu.name ? parentMenu.name : parentMenu.MenuName }}
           </h1>
           <p class="text-gray-300 text-sm">{{ parentMenu.description }}</p>
         </div>
-        <div class="bg-white px-4 pt-10 pb-6">
-          <nav class="flex justify-between items-center text-neutral-500 text-sm border-b pb-3 mb-4">
+
+        <!-- Fixed nav -->
+        <div class="bg-white px-4 pt-10 ">
+          <nav class="flex justify-between items-center text-neutral-500 text-sm border-b sticky top-0 bg-white z-10">
             <button
               :class="{ '!font-bold': menu.name ? menu.name === currentMenuName : menu.MenuName === currentMenuName }"
-              v-for="menu in menu.menus" @click="handleClickMenu(menu)">{{ menu.name ? menu.name : menu.MenuName }}
+              v-for="menu in menu.menus" @click="handleClickMenu(menu)">
+              {{ menu.name ? menu.name : menu.MenuName }}
             </button>
           </nav>
-          <div class="grid grid-cols-2 gap-4">
-            <div v-for="menu in currentMenu" class="shadow rounded-md flex flex-col p-2">
-              <!-- <img src="https://tools-api.webcrumbs.org/image-placeholder/150/100/food/6" :alt="menu.name?menu.name:menu.MenuName"
-            class="w-full h-[100px] rounded-md object-cover" /> -->
+        </div>
+
+        <!-- Scrollable content -->
+        <div class="bg-white px-4 pt-4  overflow-y-auto h-[calc(100vh-355px)]">
+          <!-- 200px for image height + 56px for nav height -->
+          <div class="grid grid-cols-2 gap-2">
+            <div v-for="menu in currentMenuList" class="shadow rounded-md flex flex-col p-2"
+              @click="handleClickMenuRecipe(menu)">
               <p class="text-neutral-950 text-sm mt-2 font-semibold">{{ menu.name ? menu.name : menu.MenuName }}</p>
-              <p class="text-neutral-500 text-xs mb-1 whitespace-pre-wrap"> {{ menu.item }} </p>
+              <p
+                class="clamped-text text-neutral-500 text-xs mb-1 whitespace-pre-wrap h-12 overflow-hidden truncate w-full">
+                {{ menu.item }}
+              </p>
             </div>
           </div>
         </div>
-
       </div>
+      <Menus :menu="currentMenu" @close="closeMenuPopup" />
 </template>
 
 <route lang="yaml">
@@ -750,5 +777,20 @@ video {
 
 #webcrumbs :is(.bg-primary-500) {
   color: hsla(0, 0%, 100%, 0.9) !important;
+}
+
+.clamped-text {
+  display: -webkit-box;
+  /* 플렉스박스 */
+  -webkit-line-clamp: 3;
+  /* 줄 수 제한 */
+  -webkit-box-orient: vertical;
+  /* 수직 방향 설정 */
+  overflow: hidden;
+  /* 넘치는 내용 숨기기 */
+  text-overflow: ellipsis;
+  /* 생략 표시 */
+  white-space: pre-wrap;
+  /* 줄바꿈 유지 */
 }
 </style>
